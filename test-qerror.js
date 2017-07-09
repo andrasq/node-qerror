@@ -74,6 +74,7 @@ var testFuncs = [
         qerror.reset();
         outputLines = [];
         qerror.alert = false;
+        qerror.handler = function(err, cb) { console.log(err.message); cb() };
         process.once('uncaughtException', function(err) {
             assert(!outputLines.length || outputLines.pop().indexOf('fatal error: SIGINT') < 0);
             setTimeout(done, 10);
@@ -217,6 +218,7 @@ var funcIdx = 0;
 (function _iterate(){
     var err;
     if (funcIdx < funcs.length) {
+        console.log("AR: test %d", funcIdx + 1);
         funcs[funcIdx++](function(e) {
             err = e;
             /*

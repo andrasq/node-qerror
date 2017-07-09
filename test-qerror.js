@@ -75,7 +75,7 @@ var testFuncs = [
         outputLines = [];
         qerror.alert = false;
         process.once('uncaughtException', function(err) {
-            assert(outputLines.pop().indexOf('fatal error: SIGINT') < 0);
+            assert(!outputLines.length || outputLines.pop().indexOf('fatal error: SIGINT') < 0);
             setTimeout(done, 10);
         })
         killSelf('SIGINT');
@@ -158,7 +158,6 @@ var testFuncs = [
 
     // should time box handler
     function(done) {
-console.log("AR: INT timeout test, ts", Date.now());
         qerror.reset();
         qerror.timeout = 5;
         qerror.handler = function(err, cb) {
@@ -167,38 +166,27 @@ console.log("AR: INT timeout test, ts", Date.now());
         process.once('uncaughtException', function(err) {
             qerror.uninstall();
             assert(err.message.indexOf('qerror:') >= 0, "expected qerror: timeout error");
-console.log("AR: done with timeout test");
 // FIXME: if not delayed, below errors out wiht "expected same error rethrown"
 //            done();
             setTimeout(done, 20);
         })
-console.log("AR: killing to invoke sigint handler", process.listeners('SIGINT'));
-        // send the kill from a setTimeout, else bypasses the sig handler and kills
-        // the process if the signal is sent from inside a setImmediate
         killSelf('SIGINT');
     },
 
     // should trap sighup
     function(done) {
-console.log("AR: HUP trap test, ts", Date.now());
         qerror.reset();
-console.log("AR:", qerror);
         var err1;
         qerror.handler = function(err, cb) {
-console.log("AR: got a HUP");
             err1 = err;
             assert.equal(err.message, 'SIGHUP', "expected HUP");
             cb();
         }
-console.log("AR: mark", process.listeners('SIGHUP'));
         process.once('uncaughtException', function(err2) {
-console.log("AR: uncaught");
             qerror.uninstall();
             assert.equal(err1, err2, "expected same error rethrown");
-console.log("AR: done with test");
             done();
         })
-console.log("AR: about to hup");
         killSelf('SIGHUP');
     },
 
@@ -211,7 +199,6 @@ console.log("AR: about to hup");
             cb();
         }
         process.once('uncaughtException', function(err2) {
-console.log("AR: err", err2);
             assert.equal(err1.message, 'SIGTERM', "expected SIGTERM error");
             assert.equal(err1, err2, "expected same error rethrown");
             done();
@@ -228,11 +215,9 @@ console.log("AR: err", err2);
 var funcs = testFuncs;
 var funcIdx = 0;
 (function _iterate(){
-console.log("AR: iterate:");
     var err;
     if (funcIdx < funcs.length) {
         funcs[funcIdx++](function(e) {
-console.log("AR: test func back", funcIdx);
             err = e;
             /*
              * NOTE: this test works under node v0.8 and v0.10, but in node v4 and up

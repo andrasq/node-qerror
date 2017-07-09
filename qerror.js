@@ -85,24 +85,20 @@ function defaultHandler( err, cb ) {
 }
 
 function onUncaught( err ) {
-console.log("AR: sig uncaught");
     qerror._handleFatalError(err, 'uncaught exception');
 }
 
 function onHup( ) {
     // HUP is not fatal if someone is handling SIGHUP
-console.log("AR: sig HUP");
     if (process.listeners('SIGHUP').length > 1) return;
     qerror._handleFatalError(new SignalError('SIGHUP'));
 }
 
 function onInt( ) {
-console.log("AR: sig INT");
     qerror._handleFatalError(new SignalError('SIGINT'));
 }
 
 function onTerm( ) {
-console.log("AR: sig TERM");
     qerror._handleFatalError(new SignalError('SIGTERM'));
 }
 

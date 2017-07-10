@@ -5,7 +5,7 @@
   "main": "qerror.js",
   "license": "Apache-2.0",
   "author": "Andras",
-  "repository": "git://github.com:andrasq/node-qerror",
+  "repository": "git://github.com/andrasq/node-qerror",
   "scripts": {
     "test": "node test-qerror.js",
     "coverage": "nyc --reporter text --reporter lcov npm test",

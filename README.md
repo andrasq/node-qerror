@@ -28,7 +28,8 @@ If falsy, the fatal error is rethrown immediately, killing the app.  Default is 
 ### qerror.alert( err, message )
 
 If set, the function to use to output a notice that a fatal error has occurred.
-If falsy, no notice will be output.
+If falsy, no notice will be output.  The default is a line composed of a timestamp,
+"fatal error:" and the error message, eg `2017-07-08T22:18:35 fatal error: SIGTERM`.
 
 ### qerror.timeout
 

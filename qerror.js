@@ -55,7 +55,7 @@ function Qerror( ) {
                 if (err instanceof SignalError) throw err;
                 else {
                     var funcs = process.listeners('uncaughtException');
-                    for (var i=0; i<funcs.length; i++) funcs[i](err);
+                    process.emit('uncaughtException', err);
                 }
             }
         }

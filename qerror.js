@@ -88,17 +88,17 @@ function onUncaught( err ) {
     qerror._handleFatalError(err, 'uncaught exception');
 }
 
-function onHup( ) {
+function catchSighup( ) {
     // HUP is not fatal if someone is handling SIGHUP
     if (process.listeners('SIGHUP').length > 1) return;
     qerror._handleFatalError(new SignalError('SIGHUP'));
 }
 
-function onInt( ) {
+function catchSigint( ) {
     qerror._handleFatalError(new SignalError('SIGINT'));
 }
 
-function onTerm( ) {
+function catchSigterm( ) {
     qerror._handleFatalError(new SignalError('SIGTERM'));
 }
 
@@ -108,18 +108,18 @@ function install( ) {
     this.uninstall();
 
     process.on('uncaughtException', onUncaught);
-    process.on('SIGHUP', onHup);
-    process.on('SIGINT', onInt);
-    process.on('SIGTERM', onTerm);
+    process.on('SIGHUP', catchSighup);
+    process.on('SIGINT', catchSigint);
+    process.on('SIGTERM', catchSigterm);
     return this;
 }
 
 function uninstall( ) {
     process.removeListener('uncaughtException', onUncaught);
     try {
-        process.removeListener('SIGHUP', onHup);
-        process.removeListener('SIGINT', onInt);
-        process.removeListener('SIGTERM', onTerm);
+        process.removeListener('SIGHUP', catchSighup);
+        process.removeListener('SIGINT', catchSigint);
+        process.removeListener('SIGTERM', catchSigterm);
     } catch (err) {
         // cannot remove, ignore error from node v0.10
     }

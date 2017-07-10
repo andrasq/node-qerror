@@ -6,8 +6,9 @@ qerror
 error handler hook for fatal signals
 
 `qerror` provides an easy to use hook to install a shutdown handler on receipt of
-fatal signals.  Catches SIGINT, SIGTERM, SIGHUP and uncaught exceptions, invokes
-the handler, and rethrows them as errors.
+fatal signals.  Runs the `qerror.handler` function before exiting, letting the app
+flush logs and clean up before exiting.  Catches SIGINT, SIGTERM, SIGHUP and uncaught
+exceptions, invokes the handler, and rethrows them as errors.
 
     var qerror = require('qerror');
     qerror.timeout = 30000;

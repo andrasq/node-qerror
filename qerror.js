@@ -1,5 +1,8 @@
 /**
- * fatal error handler, to clean up before exiting
+ * fatal error hook, to flush logs and clean up before exiting app
+ *
+ * Copyright (C) 2016-2017 Andras Radics
+ * Licensed under the Apache License, Version 2.0
  *
  * 2017-07-07 - AR.
  */

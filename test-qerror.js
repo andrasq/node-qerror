@@ -18,7 +18,7 @@ var outputLines = [];
 process.stdout.__sysWrite__ = process.stdout.write;
 process.stdout.write = function(msg, a, b) {
     outputLines.push(msg);
-    process.stdout.__sysWrite__(msg);
+//    process.stdout.__sysWrite__(msg);
 }
 
 function killSelf( sig ) {
@@ -28,9 +28,16 @@ function killSelf( sig ) {
     setTimeout(function(){ process.kill(process.pid, sig) }, 1);
 }
 
+function label( text ) {
+    return function(done) {
+        process.stderr.write("- " + text + "\n");
+        done();
+    }
+}
+
 var testFuncs = [
 
-    // should invoke handler on uncaught error
+    label('should invoke handler on uncaught error'),
     function(done) {
         var err = new Error("some uncaught error");
         qerror.reset();
@@ -45,7 +52,7 @@ var testFuncs = [
         throw err;
     },
 
-    // should rethrow a fatal error without a handler
+    label('should rethrow a fatal error without a handler'),
     function(done) {
         qerror.reset();
         qerror.handler = false;
@@ -57,7 +64,7 @@ var testFuncs = [
         killSelf('SIGINT');
     },
 
-    // should rethrow the error with a handler
+    label('should rethrow the error with a handler'),
     function(done) {
         qerror.reset();
         qerror.handler = function(err, cb) { cb() };
@@ -69,7 +76,7 @@ var testFuncs = [
         killSelf('SIGINT');
     },
 
-    // should omit alert if disabled
+    label('should omit alert if disabled'),
     function(done) {
         qerror.reset();
         outputLines = [];
@@ -82,14 +89,14 @@ var testFuncs = [
         killSelf('SIGINT');
     },
 
-    // should expose SignalError
+    label('should expose SignalError'),
     function(done) {
         assert.equal(typeof qerror.SignalError, 'function');
         assert(new qerror.SignalError() instanceof Error);
         done();
     },
 
-    // should invoke handler on SIGINT
+    label('should invoke handler on SIGINT'),
     function(done) {
         qerror.reset();
         var called = false;
@@ -101,7 +108,7 @@ var testFuncs = [
         killSelf('SIGINT');
     },
 
-    // should invoke handler on SIGTERM
+    label('should invoke handler on SIGTERM'),
     function(done) {
         qerror.reset();
         var called = false;
@@ -113,7 +120,7 @@ var testFuncs = [
         killSelf('SIGTERM');
     },
 
-    // should invoke handler on SIGHUP
+    label('should invoke handler on SIGHUP'),
     function(done) {
         qerror.reset();
         var called = false;
@@ -125,7 +132,7 @@ var testFuncs = [
         killSelf('SIGHUP');
     },
 
-    // should not throw or invoke handler if SIGHUP already listened for
+    label('should not throw or invoke handler if SIGHUP already listened for'),
     function(done) {
         qerror.reset();
         var called = false;
@@ -142,7 +149,7 @@ var testFuncs = [
         killSelf('SIGHUP');
     },
 
-    // should ignore second error if already shutting down
+    label('should ignore second error if already shutting down'),
     function(done) {
         qerror.reset();
         var callCount = 0;
@@ -157,24 +164,27 @@ var testFuncs = [
         }, 20);
     },
 
-    // should time box handler
+    label('should time box handler'),
     function(done) {
         qerror.reset();
         qerror.timeout = 5;
+        var startTime = Date.now();
         qerror.handler = function(err, cb) {
+            // make the callback, verify the callback-after-timeout codepath
             setTimeout(cb, 10);
         }
         process.once('uncaughtException', function(err) {
             qerror.uninstall();
             assert(err.message.indexOf('qerror:') >= 0, "expected qerror: timeout error");
-// FIXME: if not delayed, below errors out wiht "expected same error rethrown"
-//            done();
-            setTimeout(done, 20);
+            assert(startTime + 10 > Date.now());
+            // delay the next test until the handler callback has expired,
+            // else the cleared _timeout flag would cause our SIGINT to be rethrown
+            setTimeout(done, 5);
         })
         killSelf('SIGINT');
     },
 
-    // should trap sighup
+    label('should trap sighup'),
     function(done) {
         qerror.reset();
         var err1;
@@ -191,7 +201,7 @@ var testFuncs = [
         killSelf('SIGHUP');
     },
 
-    // should trap sigterm
+    label('should trap sigterm'),
     function(done) {
         qerror.reset();
         var err1;
@@ -218,7 +228,7 @@ var funcIdx = 0;
 (function _iterate(){
     var err;
     if (funcIdx < funcs.length) {
-        console.log("AR: test %d", funcIdx + 1);
+        //console.log("AR: test %d", funcIdx + 1);
         funcs[funcIdx++](function(e) {
             err = e;
             /*

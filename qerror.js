@@ -128,6 +128,3 @@ function uninstall( ) {
     }
     return this;
 }
-
-// export the pre-installed error handler singleton
-module.exports = qerror.install();

@@ -42,6 +42,21 @@ function label( text ) {
 
 var testFuncs = [
 
+    label('should already be installed'),
+    function(done) {
+        var called = false;
+        qerror.handler = function(err, cb) {
+            called = true;
+            cb();
+        }
+        process.once('uncaughtException', function(err2) {
+            assert(called);
+            assert.equal(err2.message, 'SIGINT');
+            setTimeout(done, 10);
+        })
+        killSelf('SIGINT');
+    },
+
     label('should invoke handler on uncaught error'),
     function(done) {
         var err = new Error("some uncaught error");

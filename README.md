@@ -81,5 +81,13 @@ running.  Subsequent errors are suppressed while waiting for the shutdown handle
 call its callback.  To force the app to exit immediately, kill it with SIGKILL.
 
 
+Change Log
+----------------
+
+- 0.1.1 - remove redundant module.exports line, add is-already-installed test
+- 0.1.0 - initial version
+
 Todo
 ----------------
+
+- fix: coffee-script has to explicitly `qerror.install()` for the handler to run

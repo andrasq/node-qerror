@@ -28,6 +28,7 @@ function Qerror( ) {
     this.install = install;
     this.uninstall = uninstall;
 
+    this._installed = false;
     this._exiting = false;
     this._timeout = false;
 
@@ -114,6 +115,7 @@ function install( ) {
     process.on('SIGHUP', catchSighup);
     process.on('SIGINT', catchSigint);
     process.on('SIGTERM', catchSigterm);
+    this._installed = true;
     return this;
 }
 
@@ -126,5 +128,6 @@ function uninstall( ) {
     } catch (err) {
         // cannot remove, ignore error from node v0.10
     }
+    this._installed = false;
     return this;
 }

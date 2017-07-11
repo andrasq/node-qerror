@@ -74,16 +74,22 @@ default hooked to SIGINT, SIGTERM, SIGHUP and uncaught exceptions.
 Rehook the error handler to the signals and uncaught exceptions.  `qerror` by default
 is already `install`-ed.  See `uninstall`.
 
+### qerror._installed
+
+Internal flag set whenever the error handler is hooked to listen for signals.
+Set by default and by `install`, cleared by `uninstall`.
+
 ### qerror._exiting
 
-Internal flag set if a fatal error has been caught and the shutdown handler is
-running.  Subsequent errors are suppressed while waiting for the shutdown handler to
-call its callback.  To force the app to exit immediately, kill it with SIGKILL.
+Internal flag set if a fatal error has been caught and the shutdown handler has
+been invoked.  Subsequent errors are suppressed while waiting for the shutdown handler to
+finish and call its callback.  To force the app to exit immediately, kill it with SIGKILL.
 
 
 Change Log
 ----------------
 
+- 0.1.2 - `_installed` flag
 - 0.1.1 - remove redundant module.exports line, add is-already-installed test
 - 0.1.0 - initial version
 

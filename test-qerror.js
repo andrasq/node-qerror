@@ -215,7 +215,7 @@ var testFuncs = [
         }
         process.once('uncaughtException', function(err2) {
             qerror.uninstall();
-            assert.equal(err1, err2, "expected same error rethrown");
+            assert.equal(err1, err2, "expected same error rethrown, wanted SIGHUP got " + util.format(err2));
             done();
         })
         killSelf('SIGHUP');
@@ -231,7 +231,7 @@ var testFuncs = [
         }
         process.once('uncaughtException', function(err2) {
             assert.equal(err1.message, 'SIGTERM', "expected SIGTERM error");
-            assert.equal(err1, err2, "expected same error rethrown");
+            assert.equal(err1, err2, "expected same error rethrown, wanted SIGTERM got " + util.format(err2));
             done();
         })
         killSelf('SIGTERM');

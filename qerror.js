@@ -36,7 +36,7 @@ function Qerror( ) {
         message = message || err.message;
         if (this.alert) this.alert(err, message);
         if (this._exiting) {
-            process.stdout.write("already exiting, error ignored:" + message + ": " + err + "\n");
+            process.stdout.write("already exiting, error ignored: " + message + ": " + err + "\n");
             return;
         }
         this._exiting = true;

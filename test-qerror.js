@@ -21,9 +21,17 @@ if (!global.setImmediate) global.setImmediate = process.nextTick;
 // capture all console output
 var outputLines = [];
 process.stdout.__sysWrite__ = process.stdout.write;
-process.stdout.write = function(msg, a, b) {
-    outputLines.push(msg);
-//    process.stdout.__sysWrite__(msg);
+
+function captureOutput( ) {
+    process.stdout.write = function(msg, a, b) {
+        outputLines.push(msg);
+        // var args = Array.prototype.slice.apply(arguments, 0);
+        // outputLilnes.push(util.format.apply(util, args));
+    }
+}
+
+function restoreOutput( ) {
+    process.stdout.write = process.stdout.__sysWrite__;
 }
 
 function killSelf( sig ) {
@@ -49,7 +57,9 @@ var testFuncs = [
             called = true;
             cb();
         }
+        captureOutput();
         process.once('uncaughtException', function(err2) {
+            restoreOutput();
             assert(called);
             assert.equal(err2.message, 'SIGINT');
             setTimeout(done, 10);
@@ -64,7 +74,9 @@ var testFuncs = [
         var called = false;
         qerror.handler = function(err, cb) { called = err; cb() };
         // NOTE: uncaughtException listener is not invoked when error is thrown from inside an uncaughtException handler
+        captureOutput();
         process.once('uncaughtException', function(err2) {
+            restoreOutput();
             assert.equal(err2, err);
             assert.equal(called, err);
             process.once('uncaughtException', function(err3) {})
@@ -83,7 +95,9 @@ var testFuncs = [
         process.on('uncaughtException', listener = function(err) {
             if (err === myErr) calledCount += 1;
         })
+        captureOutput();
         setTimeout(function() {
+            restoreOutput();
             process.removeListener('uncaughtException', listener);
             assert.equal(calledCount, 1);
             done();
@@ -94,8 +108,10 @@ var testFuncs = [
     label('should rethrow a fatal error without a handler'),
     function(done) {
         qerror.reset();
+        captureOutput();
         qerror.handler = false;
         process.once('uncaughtException', function(err) {
+            restoreOutput();
             assert.equal(err.message, 'SIGINT');
             assert(outputLines.pop().indexOf('fatal error: SIGINT') >= 0);
             setTimeout(done, 10);
@@ -106,8 +122,10 @@ var testFuncs = [
     label('should rethrow the error with a handler'),
     function(done) {
         qerror.reset();
+        captureOutput();
         qerror.handler = function(err, cb) { cb() };
         process.once('uncaughtException', function(err) {
+            restoreOutput();
             assert.equal(err.message, 'SIGINT');
             assert(outputLines.pop().indexOf('fatal error: SIGINT') >= 0);
             setTimeout(done, 10);
@@ -118,10 +136,12 @@ var testFuncs = [
     label('should omit alert if disabled'),
     function(done) {
         qerror.reset();
+        captureOutput();
         outputLines = [];
         qerror.alert = false;
         qerror.handler = function(err, cb) { console.log(err.message); cb() };
         process.once('uncaughtException', function(err) {
+            restoreOutput();
             assert(!outputLines.length || outputLines.pop().indexOf('fatal error: SIGINT') < 0);
             setTimeout(done, 10);
         })
@@ -195,9 +215,11 @@ var testFuncs = [
         process.once('uncaughtException', function(err) {
             callCount += 1;
         })
+        captureOutput();
         setTimeout(function(){ killSelf('SIGINT') }, 1);
         setTimeout(function(){ killSelf('SIGINT') }, 2);
         setTimeout(function(){
+            restoreOutput();
             assert(callCount == 1);
             done();
         }, 20);
@@ -283,6 +305,7 @@ var funcIdx = 0;
         })
     }
     else {
+        restoreOutput();
         console.log("AR: Done.");
     }
 })();

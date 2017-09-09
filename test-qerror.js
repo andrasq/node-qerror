@@ -67,9 +67,28 @@ var testFuncs = [
         process.once('uncaughtException', function(err2) {
             assert.equal(err2, err);
             assert.equal(called, err);
+            process.once('uncaughtException', function(err3) {})
             setTimeout(done, 10);
         })
         throw err;
+    },
+
+    label('should emit error only once'),
+    function(done) {
+        var myErr = new Error("only-once error");
+        qerror.reset();
+        var calledCount = 0;
+        qerror.handler = function(err, cb) { cb() };
+        var listener;
+        process.on('uncaughtException', listener = function(err) {
+            if (err === myErr) calledCount += 1;
+        })
+        setTimeout(function() {
+            process.removeListener('uncaughtException', listener);
+            assert.equal(calledCount, 1);
+            done();
+        }, 20)
+        throw myErr;
     },
 
     label('should rethrow a fatal error without a handler'),
@@ -199,7 +218,8 @@ var testFuncs = [
             assert(startTime + 10 > Date.now());
             // delay the next test until the handler callback has expired,
             // else the cleared _timeout flag would cause our SIGINT to be rethrown
-            setTimeout(done, 5);
+            // note: 5ms is occasionally too short
+            setTimeout(done, 20);
         })
         killSelf('SIGINT');
     },
@@ -250,7 +270,8 @@ var funcIdx = 0;
     if (funcIdx < funcs.length) {
         //console.log("AR: test %d", funcIdx + 1);
         funcs[funcIdx++](function(e) {
-            err = e;
+            //console.log("AR: test done");
+            if (e) return;
             /*
              * NOTE: this test works under node v0.8 and v0.10, but in node v4 and up
              * (eg v6.10.2) the kill is not caught and delivered to the signal handler

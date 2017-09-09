@@ -48,19 +48,23 @@ function Qerror( ) {
             throw new Error("qerror: shutdown handler took more than " + self.timeout + " ms");
         }
         function errorHandlerCallback( err2 ) {
+            // shutdown handler finished, wrap up
             clearTimeout(shutdownTimer);
             process.removeListener('uncaughtException', onUncaught);
-            // NOTE: an error thrown from inside the uncaughtException handler
-            // is not relayed to the other uncaughtException handlers.
-            // However, signals must be rethrown from the current stack.
-            // As a workaround, invoke them ourselves, to not run any code past this error.
-            // Calling the other handlers is needed for our unit tests to work.
+
             if (!self._timeout) {
+                // rethrow fatal signals to kill the process
+                // Note that signals are caught and vectored here outside of an
+                // uncaughtException handler, and when rethrown can be caught.
                 if (err instanceof SignalError) throw err;
-                else {
-                    var funcs = process.listeners('uncaughtException');
-                    process.emit('uncaughtException', err);
-                }
+
+                // TODO: also rethrow to kill the process?
+                // Uncaught exceptions were in fact caught and thus neutralized; it is
+                // up to the exception handler (ie qerror.handler) to kill the process.
+
+                // note: a throw from inside an uncaughtException handler is not caught
+                // nor is it emitted to the other uncaughtException listeners.
+                // setImmediate(function() { throw err });
             }
         }
         var shutdownTimer = setTimeout(timeoutHandler, this.timeout);

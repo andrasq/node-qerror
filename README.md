@@ -89,6 +89,7 @@ finish and call its callback.  To force the app to exit immediately, kill it wit
 Change Log
 ----------------
 
+- 0.1.3 - do not emit a duplicate uncaught exception
 - 0.1.2 - `_installed` flag
 - 0.1.1 - remove redundant module.exports line, add is-already-installed test
 - 0.1.0 - initial version

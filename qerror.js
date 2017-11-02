@@ -95,7 +95,7 @@ function Qerror( ) {
 }
 
 function defaultAlert( err, msg ) {
-    console.log("%s -- fatal error: %s", new Date().toISOString(), msg);
+    console.log("%s -- fatal error: %s", new Date().toISOString(), msg, (err instanceof qerror.SignalError ? '' : '\n' + err.stack));
 }
 
 function defaultHandler( err, cb ) {

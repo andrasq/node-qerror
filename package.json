@@ -1,6 +1,6 @@
 {
   "name": "qerror",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "description": "error handler hook for fatal signals",
   "main": "qerror.js",
   "license": "Apache-2.0",

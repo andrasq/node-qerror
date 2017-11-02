@@ -58,11 +58,22 @@ If set, the function to use to output a notice that a fatal error has occurred.
 If falsy, no notice will be output.  The default is a line composed of a timestamp,
 "fatal error:" and the error message, eg `2017-07-08T22:18:35.784Z fatal error: SIGTERM`.
 
+To have the app handle uncaught exceptions instead of qerror, set `qerror.ignoreUncaughtException`.
+
 ### qerror.timeout
 
 How long to allow for the shutdown function to finish before calling its callback, in
 milliseconds.  Default is 30000 for 30 seconds.  If this limit is exceeded, an
 uncaught error is thrown.
+
+### qerror.ignoreUncaughtException
+
+If set, do not terminate the program on uncaught exceptions, instead let the
+application handle them.
+
+### qerror.error
+
+The error that caused qerror to call the application shutdown `handler`, or `null` if none.
 
 ### qerror.uninstall( )
 
@@ -89,6 +100,8 @@ finish and call its callback.  To force the app to exit immediately, kill it wit
 Change Log
 ----------------
 
+- 0.2.0 - let app handle uncaught exceptions if `.ignoreUncaughtException` is set, only call
+  `alert` and `handler` if they are functions, expose the fatal `.error`
 - 0.1.3 - do not emit a duplicate uncaught exception
 - 0.1.2 - `_installed` flag
 - 0.1.1 - remove redundant module.exports line, add is-already-installed test

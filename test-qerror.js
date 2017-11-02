@@ -133,6 +133,16 @@ var testFuncs = [
         killSelf('SIGINT');
     },
 
+    label('should invoke alert if set'),
+    function(done) {
+        qerror.reset();
+        qerror.alert = function(err, message) {
+            assert.equal(err.message, 'test error');
+            done();
+        };
+        throw new Error("test error");
+    },
+
     label('should omit alert if disabled'),
     function(done) {
         qerror.reset();
@@ -155,6 +165,23 @@ var testFuncs = [
         done();
     },
 
+    label('should ignore uncaught errors if qerror.ignoreUncaughtException'),
+    function(done) {
+        qerror.reset();
+        qerror.ignoreUncaughtException = true;
+        var called = false;
+        qerror.handler = function(err, cb) { if (!called) called = err; cb() }
+        qerror.alert = function(err) { if (!called) called = err }
+        process.once('uncaughtException', function errorListener(err) {
+            assert.equal(err.message, 'test error');
+            setTimeout(function() {
+                assert(!called);
+                done();
+            }, 10)
+        })
+        throw new Error('test error');
+    },
+
     label('should invoke handler on SIGINT'),
     function(done) {
         qerror.reset();
@@ -171,7 +198,7 @@ var testFuncs = [
     function(done) {
         qerror.reset();
         var called = false;
-        qerror.handler = function(err, cb) { called = true; cb() };
+        qerror.handler = function(err, cb) { called = err; cb() };
         process.once('uncaughtException', function(err) {
             assert(called);
             setTimeout(done, 10);
@@ -243,6 +270,22 @@ var testFuncs = [
             // note: 5ms is occasionally too short
             setTimeout(done, 20);
         })
+        killSelf('SIGINT');
+    },
+
+    label('should ignore timeout if was reset'),
+    function(done) {
+        qerror.reset();
+        qerror.timeout = 5;
+        qerror.handler = function(err, cb) {
+            assert.equal(err.message, 'SIGINT');
+            qerror.reset();
+            setTimeout(cb, 10);
+        }
+        setTimeout(function() {
+            assert(!qerror._exiting);
+            done();
+        }, 20);
         killSelf('SIGINT');
     },
 

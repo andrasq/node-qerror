@@ -47,12 +47,12 @@ Signals
 API
 ----------------
 
-### qerror.handler( err, callback )
+### qerror.handler = function( err, callback )
 
 A user-provided handler to invoke on fatal error to shut down the running app.
 If falsy, the fatal error is rethrown immediately, killing the app.  Default is falsy.
 
-### qerror.alert( err, message )
+### qerror.alert = function( err, message )
 
 If set, the function to use to output a notice that a fatal error has occurred.
 If falsy, no notice will be output.  The default is a line composed of a timestamp,
